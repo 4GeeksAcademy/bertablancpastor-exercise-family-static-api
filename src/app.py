@@ -25,6 +25,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+#1/ALL MEMBERS
 @app.route('/members', methods=['GET'])
 def handle_hello():
 
@@ -35,7 +36,44 @@ def handle_hello():
         "family": members
     }
 
+    return jsonify(response_body), 200
 
+#2/ONE MEMBER
+@app.route('/member/<int:member_id>', methods=['GET'])
+def handle_member(member_id):
+
+    member = jackson_family.get_member(member_id)
+
+    response_body = {
+        "member": member
+    }
+    
+    return jsonify(response_body), 200
+
+#3/CREATE ONE MEMBER
+@app.route('/members/', methods=['POST'])
+def handle_create():
+    
+    request_body = request.get_json(force=True)
+    jackson_family.add_member(request_body)
+
+    response_body = {
+        "msg": "Member created"
+    }
+
+    return jsonify(response_body), 200
+
+
+#4/ DELETE ONE MEMBER
+@app.route('/delete/<int:member_id>', methods=['DELETE'])
+def handle_delete(member_id):
+
+    jackson_family.delete_member(member_id)
+
+    response_body = {
+        "msg": "Member delete"
+    }
+    
     return jsonify(response_body), 200
 
 # this only runs if `$ python src/app.py` is executed
