@@ -50,28 +50,35 @@ def handle_get_put_member(member_id):
 
     if request.method == 'GET':
         member = jackson_family.get_member(member_id)
-        response_body = {
-        "member": member
+        if member is not None:
+            response_body = {
+            "member": member
+            }
+            return jsonify(response_body), 200
+        else:
+            response_body = {
+            "msg error": "Member not found"
         }
-        return jsonify(response_body), 200
+        return jsonify(response_body), 404
       
     elif request.method == 'PUT':
         request_body = request.get_json(force=True)
-        updated_member = {
-        "id": member_id,
-        "first_name": request_body["first_name"],
-        "last_name": jackson_family.last_name,
-        "age": request_body["age"],
-        "lucky_numbers": request_body["lucky_numbers"]
-        }
-        jackson_family.update_member(member_id, updated_member)
-        response_body = {
-            "msg": "Update member"
-        }
-        return jsonify(response_body), 200
-    
-    elif member != jackson_family.get_member(member_id):
-        response_body = {
+        member = jackson_family.get_member(member_id)
+        if member is not None:
+            updated_member = {
+            "id": member_id,
+            "first_name": request_body["first_name"],
+            "last_name": jackson_family.last_name,
+            "age": request_body["age"],
+            "lucky_numbers": request_body["lucky_numbers"]
+            }
+            jackson_family.update_member(member_id, updated_member)
+            response_body = {
+                "msg": "Update member"
+            }
+            return jsonify(response_body), 200
+        else:
+            response_body = {
             "msg error": "Member not found"
         }
         return jsonify(response_body), 404
