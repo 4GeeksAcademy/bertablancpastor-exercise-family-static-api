@@ -56,7 +56,12 @@ class FamilyStructure:
     def update_member(self, id, member):
         ## you have to implement this method
         ## loop the list and replace the member with the given id
-        pass
+        for i in range(len(self._members)):
+            existing_member = self._members[i]
+            if existing_member["id"] == id:
+                self._members[i] = member
+                return True
+        return False
 
     def get_member(self, id):
         ## you have to implement this method

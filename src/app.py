@@ -31,50 +31,87 @@ def handle_hello():
 
     # this is how you can use the Family datastructure by calling its methods
     members = jackson_family.get_all_members()
-    response_body = {
-        "hello": "world",
-        "family": members
-    }
-
-    return jsonify(response_body), 200
-
-#2/ONE MEMBER
-@app.route('/member/<int:member_id>', methods=['GET'])
-def handle_member(member_id):
-
-    member = jackson_family.get_member(member_id)
-
-    response_body = {
-        "member": member
-    }
     
-    return jsonify(response_body), 200
+    if members:
+        response_body = {
+            "hello": "world",
+            "family": members
+        }
+        return jsonify(response_body), 200
+    else:
+        response_body = {
+            "msg error": "There is no members"
+        }
+        return jsonify(response_body), 404
+
+#2/ GET ONE MEMBER or EDIT ONE MEMBER
+@app.route('/member/<int:member_id>', methods=['GET', 'PUT'])
+def handle_get_put_member(member_id):
+
+    if request.method == 'GET':
+        member = jackson_family.get_member(member_id)
+        response_body = {
+        "member": member
+        }
+        return jsonify(response_body), 200
+      
+    elif request.method == 'PUT':
+        request_body = request.get_json(force=True)
+        updated_member = {
+        "id": member_id,
+        "first_name": request_body["first_name"],
+        "last_name": jackson_family.last_name,
+        "age": request_body["age"],
+        "lucky_numbers": request_body["lucky_numbers"]
+        }
+        jackson_family.update_member(member_id, updated_member)
+        response_body = {
+            "msg": "Update member"
+        }
+        return jsonify(response_body), 200
+    
+    elif member != jackson_family.get_member(member_id):
+        response_body = {
+            "msg error": "Member not found"
+        }
+        return jsonify(response_body), 404
+    
 
 #3/CREATE ONE MEMBER
 @app.route('/members/', methods=['POST'])
 def handle_create():
     
     request_body = request.get_json(force=True)
-    jackson_family.add_member(request_body)
-
-    response_body = {
+    if "last_name" not in request_body:
+        response_body = {
+            "msg error": "Incomplete data"
+        }
+        return jsonify(response_body), 404
+    else:
+        jackson_family.add_member(request_body)
+        
+        response_body = {
         "msg": "Member created"
-    }
-
-    return jsonify(response_body), 200
+        }
+        return jsonify(response_body), 200
 
 
 #4/ DELETE ONE MEMBER
 @app.route('/delete/<int:member_id>', methods=['DELETE'])
 def handle_delete(member_id):
 
-    jackson_family.delete_member(member_id)
-
-    response_body = {
+    if jackson_family.delete_member(member_id):
+        response_body = {
         "msg": "Member delete"
-    }
-    
-    return jsonify(response_body), 200
+        }
+        
+        return jsonify(response_body), 200
+    else:
+        response_body = {
+            "msg error": "Member not found"
+        }
+        return jsonify(response_body), 404
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
